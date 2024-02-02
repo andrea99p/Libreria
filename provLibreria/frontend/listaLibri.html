@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>I miei libri</h1>
+    <button onclick="aggiungiLibro()">Aggiungi libro</button>
+    <div id="libri"></div>
+
+    <script>
+        var utente = JSON.parse(localStorage.getItem('utente'));
+        if (utente) {
+        function aggiungiLibro(){
+        var titolo = prompt("inserisci il titolo");
+        var autore = prompt("inserisci il nome dell'autore");
+        var codiceIsbn = prompt("inserisci il codice isbn");
+        var trama = prompt("inserisci una trama");
+        
+        
+
+        fetch('../backend/aggiungiLibro.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                titolo: titolo,
+                autore: autore,
+                codiceisbn: codiceIsbn,
+                trama: trama,
+                email: utente.email,
+                user_id: utente.id
+            }),
+
+        })
+        //.then(response => response.text())
+        .then(response => console.log(response))
+        .then(() => {
+            
+            location.reload();
+        });
+    }
+}
+    else {
+  console.log("Nessun utente loggato");
+}  
+
+function rimuoviLibro(id){
+       fetch('../backend/rimuoviLibro.php',{
+            method: 'POST',
+            headers: {
+                'Content-Type':'application/json',
+           },
+           body: JSON.stringify({
+                user_id: utente.id,
+                libro_id:id
+                
+           })
+        })
+           .then(response => response.json())
+           .then(()=>{
+            location.reload();
+           })
+       
+    }
+    function modificaLibro(id){
+        var titolo = prompt("inserisci il titolo");
+        var autore = prompt("inserisci il nome dell'autore");
+        var codiceIsbn = prompt("inserisci il codice isbn");
+        var trama = prompt("inserisci una trama");
+        var letture = prompt("inserisci numero letture")
+
+        var dati = {
+            email: utente.email,
+            libro_id: id
+        };
+
+        // Aggiungi solo i campi non vuoti all'oggetto dati
+        if (titolo) dati.titolo = titolo;
+        if (autore) dati.autore = autore;
+        if (codiceIsbn) dati.codiceisbn = codiceIsbn;
+        if (trama) dati.trama = trama;
+        if (letture) dati.numeroletture = letture
+
+        fetch('../backend/modificaLibro.php',{
+            method:'POST',
+            headers:{
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dati)    
+        })  
+            .then(response =>{
+             console.log(response);
+             response.json()})
+            .then(()=>{
+                location.reload();
+            })
+        
+    }
+
+    function incrementaLetture(id){
+        fetch("../backend/incrementaLetture.php",{
+            method:'POST',
+            headers:{
+                'Content-Type': 'application/json',
+            },
+            body:JSON.stringify({
+                user_id:utente.id,
+                libro_id:id
+            })
+        })
+        .then(response =>{ 
+            console.log(response)
+            response.json()})
+        .then(()=>{
+            location.reload();
+        })
+    }
+
+    fetch('../backend/ottieniLibri.php', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        user_id: utente.id,
+    })
+   })
+    .then(response => response.json())
+    .then(libri => {
+        console.log(libri);
+       const divLibri = document.getElementById("libri");
+       libri.forEach(libro => {
+        //console.log(libro);
+        const a = document.createElement("a");
+        a.href = `dettaglioLibro.html?id=${libro.id}`;
+        a.textContent= libro.titolo + " di " + libro.autore;
+        const p = document.createElement("p");
+        p.appendChild(a);
+        const buttonRimuovi = document.createElement("button");
+        buttonRimuovi.textContent= "rimuovi";
+        buttonRimuovi.onclick= function(){rimuoviLibro(libro.id);};
+        p.appendChild(buttonRimuovi);
+        
+        const buttonModifica = document.createElement("button");
+        buttonModifica.textContent ="modifica";
+        buttonModifica.onclick = function(){modificaLibro(libro.id);};
+        p.appendChild(buttonModifica);
+
+        const buttonLettura =  document.createElement("button");
+        buttonLettura.textContent = "aumento lettura";
+        buttonLettura.onclick = function(){incrementaLetture(libro.id);}
+        p.appendChild(buttonLettura);
+        divLibri.appendChild(p);
+       });
+       })
+    </script>
+</body>
+</html>

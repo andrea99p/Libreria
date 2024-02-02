@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Seleziona un utente</h1>
+    
+    <select id="utenti" onchange="selezionaUtente()">
+      <option value="">Seleziona un utente:</option>
+    
+    </select>
+
+    <script>
+        fetch('../backend/utenti.php')
+      .then(response => response.json())
+      .then(utenti => {
+        const select = document.getElementById('utenti');
+        utenti.forEach(utente => {
+          const option = document.createElement('option');
+          option.value = JSON.stringify(utente);
+          option.textContent = utente.nome + ' ' + utente.cognome + ' (' + utente.email + ')';
+          select.appendChild(option);
+        });
+      });
+    
+    function selezionaUtente() {
+      var selectElement = document.getElementById('utenti');
+      var utente = selectElement.value;
+      
+      localStorage.setItem('utente', utente);
+      
+      window.location.href = 'listaLibri.html';
+
+    }
+    </script>
+</body>
+</html>

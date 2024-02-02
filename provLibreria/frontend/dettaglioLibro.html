@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="dettagli" ></div>
+    <script>
+       window.onload = function(){
+       //recuper L'ID del libro dall'url
+       const urlParams = new URLSearchParams(window.location.search);
+       const libroId= urlParams.get('id');
+
+       fetch(`../backend/dettaglioLibro.php?id=${libroId}`)
+            .then(response => response.json())
+            .then(libro=> {
+                
+                const divDettagli = document.getElementById("dettagli");
+                const ul = document.createElement("ul");
+
+                
+                const liTitolo = document.createElement("li");
+                liTitolo.textContent = `Titolo: ${libro.titolo}`;
+                ul.appendChild(liTitolo);
+
+                const liAutore = document.createElement("li");
+                liAutore.textContent = `Autore: ${libro.autore}`;
+                ul.appendChild(liAutore);
+
+                const liTrama = document.createElement("li");
+                liTrama.textContent = `Trama: ${libro.trama}`;
+                ul.appendChild(liTrama);
+
+                const liCodiceisbn = document.createElement("li");
+                liCodiceisbn.textContent = `Codiceisbn: ${libro.codiceisbn}`;
+                ul.appendChild(liCodiceisbn);
+
+                const liNumeroletture = document.createElement("li");
+                liNumeroletture.textContent = `Numero volte letto: ${libro.numeroletture}`;
+                ul.appendChild(liNumeroletture);
+
+                divDettagli.appendChild(ul);
+            })
+       } 
+    </script>
+</body>
+</html>
